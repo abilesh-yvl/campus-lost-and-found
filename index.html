@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Lost & Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-900:#023436;
+    --teal-800:#04494c;
+    --teal-700:#028090;
+    --teal-500:#00a896;
+    --mint-400:#02c39a;
+    --coral-500:#e4572e;
+    --coral-100:#fce7df;
+    --paper:#f6faf8;
+    --card:#ffffff;
+    --ink:#13262b;
+    --muted:#5c7b7e;
+    --line:#dfeceb;
+    --shadow: 0 10px 30px rgba(2,52,54,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  a{color:inherit;}
+  button{font-family:inherit; cursor:pointer;}
+  ::selection{ background:var(--mint-400); color:var(--teal-900); }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px;
+    background:rgba(246,250,248,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+  }
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:var(--teal-900);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .brand-mark svg{ width:18px; height:18px; }
+  .brand-name{
+    font-family:'Fraunces', serif; font-weight:600; font-size:19px; color:var(--teal-900);
+  }
+  .brand-sub{ font-size:11px; color:var(--muted); margin-top:-3px; }
+  .topbar-actions{ display:flex; align-items:center; gap:10px; }
+  .btn{
+    border:none; border-radius:10px; padding:11px 18px;
+    font-size:14px; font-weight:600; transition:transform .12s ease, background .15s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{ background:var(--teal-900); color:#fff; }
+  .btn-primary:hover{ background:var(--teal-800); }
+  .btn-ghost{ background:transparent; color:var(--teal-900); border:1px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--teal-700); }
+
+  /* ---------- Hero / search ---------- */
+  .hero{
+    padding:56px 32px 28px;
+    max-width:1180px; margin:0 auto;
+  }
+  .hero h1{
+    font-size:42px; line-height:1.12; color:var(--teal-900);
+    max-width:640px;
+  }
+  .hero p.lede{
+    margin:14px 0 0; max-width:520px; color:var(--muted); font-size:16px; line-height:1.55;
+  }
+
+  .stat-row{
+    display:flex; gap:28px; margin-top:28px; flex-wrap:wrap;
+  }
+  .stat{ }
+  .stat .num{ font-family:'Fraunces', serif; font-size:28px; font-weight:600; color:var(--teal-700); }
+  .stat .label{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+
+  .search-panel{
+    margin-top:32px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .search-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .search-input-wrap{
+    flex:1 1 280px;
+    display:flex; align-items:center; gap:10px;
+    background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px;
+  }
+  .search-input-wrap svg{ flex-shrink:0; opacity:0.55; }
+  .search-input-wrap input{
+    border:none; outline:none; background:transparent; font-size:14.5px; width:100%;
+    font-family:inherit; color:var(--ink);
+  }
+  select.filter{
+    border:1px solid var(--line); background:var(--paper); border-radius:10px;
+    padding:10px 14px; font-size:14px; color:var(--ink); font-family:inherit;
+  }
+  .chip-row{ display:flex; gap:8px; margin-top:12px; }
+  .chip{
+    border:1px solid var(--line); background:var(--paper);
+    padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; color:var(--muted);
+  }
+  .chip.active{ background:var(--teal-900); color:#fff; border-color:var(--teal-900); }
+
+  /* ---------- Grid ---------- */
+  .grid-wrap{ max-width:1180px; margin:0 auto; padding:36px 32px 100px; }
+  .grid-heading{
+    display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px;
+  }
+  .grid-heading h2{ font-size:21px; color:var(--teal-900); }
+  .grid-heading span{ font-size:13px; color:var(--muted); }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(255px, 1fr));
+    gap:20px;
+  }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:flex; flex-direction:column;
+  }
+  .card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .card.returned{ opacity:0.55; }
+  .card-photo{
+    height:150px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card-photo svg{ width:52px; height:52px; }
+  .card-photo img{ width:100%; height:100%; object-fit:cover; }
+  .status-pill{
+    position:absolute; top:10px; left:10px;
+    font-size:11px; font-weight:700; letter-spacing:0.02em;
+    padding:5px 10px; border-radius:999px;
+    text-transform:uppercase;
+  }
+  .status-lost{ background:var(--coral-100); color:var(--coral-500); }
+  .status-found{ background:#dcf6ef; color:var(--teal-700); }
+  .status-returned{ background:#eef2f1; color:var(--muted); }
+  .card-body{ padding:14px 16px 16px; flex:1; display:flex; flex-direction:column; gap:6px; }
+  .card-title{ font-family:'Fraunces', serif; font-weight:600; font-size:16.5px; color:var(--ink); }
+  .card-meta{ font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .empty{
+    text-align:center; padding:70px 20px; color:var(--muted);
+  }
+  .empty h3{ color:var(--teal-900); font-size:19px; margin-bottom:6px; }
+  .empty p{ font-size:14px; max-width:360px; margin:0 auto; }
+
+  /* ---------- Drawer (shared motif for report + detail) ---------- */
+  .scrim{
+    position:fixed; inset:0; background:rgba(2,52,54,0.35);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:50;
+  }
+  .scrim.open{ opacity:1; pointer-events:auto; }
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(440px, 100%);
+    background:var(--card); z-index:51;
+    transform:translateX(100%); transition:transform .28s cubic-bezier(.2,.8,.2,1);
+    display:flex; flex-direction:column;
+    box-shadow:-14px 0 40px rgba(2,52,54,0.18);
+  }
+  .drawer.open{ transform:translateX(0); }
+  .drawer-header{
+    padding:22px 24px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .drawer-header h2{ font-size:20px; color:var(--teal-900); }
+  .drawer-close{
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--line);
+    background:transparent; display:flex; align-items:center; justify-content:center;
+  }
+  .drawer-body{ padding:24px; overflow-y:auto; flex:1; }
+  .drawer-footer{ padding:18px 24px; border-top:1px solid var(--line); display:flex; gap:10px; }
+
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color:var(--teal-900); margin-bottom:6px; }
+  .field input[type=text], .field input[type=tel], .field input[type=date], .field select, .field textarea{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:11px 13px;
+    font-size:14px; font-family:inherit; color:var(--ink); background:var(--paper);
+  }
+  .field textarea{ resize:vertical; min-height:70px; }
+  .toggle-group{ display:flex; gap:8px; }
+  .toggle-opt{
+    flex:1; text-align:center; padding:10px; border-radius:10px; border:1px solid var(--line);
+    font-size:13.5px; font-weight:600; color:var(--muted); background:var(--paper);
+  }
+  .toggle-opt.active-lost{ background:var(--coral-100); color:var(--coral-500); border-color:var(--coral-500); }
+  .toggle-opt.active-found{ background:#dcf6ef; color:var(--teal-700); border-color:var(--teal-700); }
+
+  .photo-drop{
+    border:1.5px dashed var(--line); border-radius:12px; padding:22px; text-align:center;
+    color:var(--muted); font-size:13px; cursor:pointer; background:var(--paper);
+  }
+  .photo-drop:hover{ border-color:var(--teal-500); }
+  .photo-preview{ width:100%; height:150px; border-radius:12px; object-fit:cover; margin-top:10px; display:none; }
+
+  /* detail drawer specifics */
+  .detail-photo{ width:100%; height:200px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:18px; }
+  .detail-photo svg{ width:64px; height:64px; }
+  .detail-photo img{ width:100%; height:100%; object-fit:cover; border-radius:12px; }
+  .detail-row{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .detail-row span:first-child{ color:var(--muted); }
+  .detail-row span:last-child{ color:var(--ink); font-weight:600; text-align:right; }
+  .contact-reveal{
+    margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px;
+    font-size:14px;
+  }
+  .contact-reveal .cname{ font-weight:600; color:var(--teal-900); }
+  .contact-reveal .cway{ margin-top:4px; color:var(--teal-700); font-weight:600; }
+
+  /* toast */
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--teal-900); color:#fff; padding:13px 20px; border-radius:10px;
+    font-size:13.5px; font-weight:600; opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease; z-index:60;
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  footer{
+    text-align:center; padding:26px; color:var(--muted); font-size:12px; border-top:1px solid var(--line);
+  }
+
+  @media (max-width:640px){
+    .topbar{ padding:14px 18px; }
+    .hero{ padding:34px 18px 20px; }
+    .hero h1{ font-size:30px; }
+    .grid-wrap{ padding:26px 18px 70px; }
+    .brand-sub{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L3 7v2h18V7l-9-5z" fill="#02C39A"/><path d="M4 10h2v9H4v-9zm14 0h2v9h-2v-9zM9 10h2v9H9v-9zm5 0h1v9h-1v-9zM3 20h18v2H3v-2z" fill="#fff"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Found It</div>
+      <div class="brand-sub">Campus lost &amp; found</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-primary" id="openReportBtn">+ Report an item</button>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Lost something on campus? Someone probably already found it.</h1>
+  <p class="lede">Post what you lost or found, search by item, and message the other student directly &mdash; no notice boards, no guessing.</p>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <div class="search-panel">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5C7B7E" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#5C7B7E" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="Search for an item &mdash; “ID card”, “blue wallet”, “keys”…">
+      </div>
+      <select class="filter" id="categoryFilter">
+        <option value="all">All categories</option>
+      </select>
+    </div>
+    <div class="chip-row" id="statusChips">
+      <button class="chip active" data-status="all">All</button>
+      <button class="chip" data-status="lost">Lost</button>
+      <button class="chip" data-status="found">Found</button>
+      <button class="chip" data-status="returned">Returned</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid-heading">
+    <h2>Recent posts</h2>
+    <span id="resultCount"></span>
+  </div>
+  <div class="grid" id="itemGrid"></div>
+  <div class="empty" id="emptyState" style="display:none;">
+    <h3>No items match that search</h3>
+    <p>Try a different keyword, or clear the filters to see everything that's been posted.</p>
+  </div>
+</div>
+
+<footer>Campus Lost &amp; Found &mdash; a student project prototype. No real data is stored or sent anywhere.</footer>
+
+<!-- Scrim -->
+<div class="scrim" id="scrim"></div>
+
+<!-- Report Drawer -->
+<div class="drawer" id="reportDrawer">
+  <div class="drawer-header">
+    <h2>Report an item</h2>
+    <button class="drawer-close" id="closeReport">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <div class="field">
+      <label>This item was</label>
+      <div class="toggle-group" id="lostFoundToggle">
+        <div class="toggle-opt active-lost" data-val="lost" id="optLost">I lost it</div>
+        <div class="toggle-opt" data-val="found" id="optFound">I found it</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Photo</label>
+      <div class="photo-drop" id="photoDrop">Click to add a photo (optional for this prototype)</div>
+      <img class="photo-preview" id="photoPreview">
+      <input type="file" id="photoInput" accept="image/*" style="display:none;">
+    </div>
+
+    <div class="field">
+      <label>Item name</label>
+      <input type="text" id="itemName" placeholder="e.g. Black wallet with cards">
+    </div>
+
+    <div class="field">
+      <label>Category</label>
+      <select id="itemCategory">
+        <option>ID Card</option>
+        <option>Wallet</option>
+        <option>Keys</option>
+        <option>Earphones</option>
+        <option>Book / Notes</option>
+        <option>Electronics</option>
+        <option>Bag</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Description</label>
+      <textarea id="itemDesc" placeholder="Any details that help someone recognize it &mdash; color, brand, stickers, contents…"></textarea>
+    </div>
+
+    <div class="field">
+      <label id="locationLabel">Where it was lost</label>
+      <input type="text" id="itemLocation" placeholder="e.g. Near the library entrance">
+    </div>
+
+    <div class="field">
+      <label>Your name</label>
+      <input type="text" id="reporterName" placeholder="e.g. Aisha R.">
+    </div>
+
+    <div class="field">
+      <label>Contact number</label>
+      <input type="tel" id="reporterPhone" placeholder="e.g. 98765 43210">
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" id="cancelReport" style="flex:1;">Cancel</button>
+    <button class="btn btn-primary" id="submitReport" style="flex:2;">Post item</button>
+  </div>
+</div>
+
+<!-- Detail Drawer -->
+<div class="drawer" id="detailDrawer">
+  <div class="drawer-header">
+    <h2 id="detailTitle">Item</h2>
+    <button class="drawer-close" id="closeDetail">&times;</button>
+  </div>
+  <div class="drawer-body" id="detailBody"></div>
+  <div class="drawer-footer" id="detailFooter"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- Icon set (inline SVG, no external deps) ---------------- */
+const ICONS = {
+  "ID Card": '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="{c}" stroke-width="1.6"/><circle cx="8" cy="12" r="2" stroke="{c}" stroke-width="1.6"/><path d="M13 10h6M13 14h4" stroke="{c}" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  "Wallet": '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="{c}" stroke-width="1.6"/><path d="M2 10h20" stroke="{c}" stroke-width="1.6"/><circle cx="17" cy="14" r="1.4" fill="{c}"/></svg>',
+  "Keys": '<svg viewBox="0 0 24 24" fill="none"><circle cx="7" cy="8" r="4" stroke="{c}" stroke-width="1.6"/><path d="M10.5 10.5L20 20M16 16l2.5-2.5M18.5 18.5L21 16" stroke="{c}" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  "Earphones": '<svg viewBox="0 0 24 24" fill="none"><path d="M4 13v-2a8 8 0 0116 0v2" stroke="{c}" stroke-width="1.6" stroke-linecap="round"/><rect x="2" y="13" width="5" height="7" rx="2" stroke="{c}" stroke-width="1.6"/><rect x="17" y="13" width="5" height="7" rx="2" stroke="{c}" stroke-width="1.6"/></svg>',
+  "Book / Notes": '<svg viewBox="0 0 24 24" fill="none"><path d="M4 4.5A2.5 2.5 0 016.5 2H20v18H6.5A2.5 2.5 0 014 17.5v-13z" stroke="{c}" stroke-width="1.6"/><path d="M8 7h8M8 11h8" stroke="{c}" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  "Electronics": '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="2" width="16" height="20" rx="2" stroke="{c}" stroke-width="1.6"/><path d="M9 18h6" stroke="{c}" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  "Bag": '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="{c}" stroke-width="1.6"/><path d="M8 8V6a4 4 0 018 0v2" stroke="{c}" stroke-width="1.6"/></svg>',
+  "Other": '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="{c}" stroke-width="1.6"/><path d="M12 7v6l4 2" stroke="{c}" stroke-width="1.6" stroke-linecap="round"/></svg>'
+};
+function iconFor(category, color){
+  const svg = ICONS[category] || ICONS["Other"];
+  return svg.replaceAll("{c}", color);
+}
+
+/* ---------------- State ---------------- */
+let items = [
+  { id: cryptoId(), name: "Student ID Card", category: "ID Card", status: "found", location: "Near the Library entrance", desc: "Found face-down near the turnstiles, photo shows a girl with glasses.", reporter: "Karthik M.", phone: "98765 43210", time: "2 hours ago", photo:null },
+  { id: cryptoId(), name: "Brown leather wallet", category: "Wallet", status: "found", location: "Canteen, table near the window", desc: "Contains a bus pass and a few cards, no cash visible.", reporter: "Divya S.", phone: "91234 56789", time: "5 hours ago", photo:null },
+  { id: cryptoId(), name: "Bunch of keys with a red keychain", category: "Keys", status: "lost", location: "Block C corridor, 2nd floor", desc: "Four keys and a small red elephant keychain.", reporter: "Rahul V.", phone: "99887 76655", time: "1 day ago", photo:null },
+  { id: cryptoId(), name: "White wired earphones", category: "Earphones", status: "lost", location: "Basketball court", desc: "Apple-style wired earphones, slightly tangled, in a black pouch.", reporter: "Ananya K.", phone: "90000 11223", time: "1 day ago", photo:null },
+  { id: cryptoId(), name: "Data Structures textbook", category: "Book / Notes", status: "found", location: "Room 204, left on a desk", desc: "Has 'Priya' written inside the front cover.", reporter: "Faculty desk", phone: "04422 334455", time: "2 days ago", photo:null },
+  { id: cryptoId(), name: "Blue analog wristwatch", category: "Other", status: "returned", location: "Sports ground", desc: "Reunited with its owner on the same evening.", reporter: "Suresh P.", phone: "93333 44556", time: "3 days ago", photo:null },
+];
+
+let activeStatus = "all";
+let searchTerm = "";
+let activeCategory = "all";
+let pendingLostFound = "lost";
+let pendingPhotoData = null;
+
+function cryptoId(){ return 'i' + Math.random().toString(36).slice(2,10); }
+
+/* ---------------- Rendering ---------------- */
+const grid = document.getElementById('itemGrid');
+const emptyState = document.getElementById('emptyState');
+const resultCount = document.getElementById('resultCount');
+const categoryFilter = document.getElementById('categoryFilter');
+
+function populateCategories(){
+  const cats = Object.keys(ICONS);
+  categoryFilter.innerHTML = '<option value="all">All categories</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+populateCategories();
+
+function statusMeta(status){
+  if(status === 'lost') return {label:'Lost', cls:'status-lost', bg:'#fce7df', ic:'#e4572e'};
+  if(status === 'found') return {label:'Found', cls:'status-found', bg:'#dcf6ef', ic:'#028090'};
+  return {label:'Returned', cls:'status-returned', bg:'#eef2f1', ic:'#5c7b7e'};
+}
+
+function renderGrid(){
+  const q = searchTerm.trim().toLowerCase();
+  const filtered = items.filter(it => {
+    if(activeStatus !== 'all' && it.status !== activeStatus) return false;
+    if(activeCategory !== 'all' && it.category !== activeCategory) return false;
+    if(q && !(it.name.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q) || it.location.toLowerCase().includes(q) || it.category.toLowerCase().includes(q))) return false;
+    return true;
+  });
+
+  resultCount.textContent = filtered.length + (filtered.length === 1 ? ' item' : ' items');
+  grid.innerHTML = '';
+
+  if(filtered.length === 0){
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  filtered.forEach(it => {
+    const meta = statusMeta(it.status);
+    const card = document.createElement('div');
+    card.className = 'card' + (it.status === 'returned' ? ' returned' : '');
+    card.innerHTML = `
+      <div class="card-photo" style="background:${meta.bg}">
+        <span class="status-pill ${meta.cls}">${meta.label}</span>
+        ${it.photo ? `<img src="${it.photo}">` : iconFor(it.category, meta.ic)}
+      </div>
+      <div class="card-body">
+        <div class="card-title">${escapeHtml(it.name)}</div>
+        <div class="card-meta">📍 ${escapeHtml(it.location)}</div>
+        <div class="card-meta">🕒 ${escapeHtml(it.time)}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => openDetail(it.id));
+    grid.appendChild(card);
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderStats(){
+  const active = items.filter(i => i.status !== 'returned').length;
+  const returned = items.filter(i => i.status === 'returned').length;
+  const found = items.filter(i => i.status === 'found').length;
+  document.getElementById('statRow').innerHTML = `
+    <div class="stat"><div class="num">${active}</div><div class="label">Active posts</div></div>
+    <div class="stat"><div class="num">${found}</div><div class="label">Items found, awaiting owner</div></div>
+    <div class="stat"><div class="num">${returned}</div><div class="label">Reunited with owners</div></div>
+  `;
+}
+
+/* ---------------- Filters ---------------- */
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchTerm = e.target.value; renderGrid();
+});
+categoryFilter.addEventListener('change', e => {
+  activeCategory = e.target.value; renderGrid();
+});
+document.getElementById('statusChips').addEventListener('click', e => {
+  const btn = e.target.closest('.chip');
+  if(!btn) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  activeStatus = btn.dataset.status;
+  renderGrid();
+});
+
+/* ---------------- Drawers ---------------- */
+const scrim = document.getElementById('scrim');
+const reportDrawer = document.getElementById('reportDrawer');
+const detailDrawer = document.getElementById('detailDrawer');
+
+function openDrawer(drawer){
+  scrim.classList.add('open');
+  drawer.classList.add('open');
+}
+function closeDrawers(){
+  scrim.classList.remove('open');
+  reportDrawer.classList.remove('open');
+  detailDrawer.classList.remove('open');
+}
+scrim.addEventListener('click', closeDrawers);
+document.getElementById('closeReport').addEventListener('click', closeDrawers);
+document.getElementById('cancelReport').addEventListener('click', closeDrawers);
+document.getElementById('closeDetail').addEventListener('click', closeDrawers);
+
+/* ---- Report drawer ---- */
+document.getElementById('openReportBtn').addEventListener('click', () => {
+  resetReportForm();
+  openDrawer(reportDrawer);
+});
+
+const optLost = document.getElementById('optLost');
+const optFound = document.getElementById('optFound');
+const locationLabel = document.getElementById('locationLabel');
+
+function setLostFound(val){
+  pendingLostFound = val;
+  optLost.classList.toggle('active-lost', val === 'lost');
+  optFound.classList.toggle('active-found', val === 'found');
+  locationLabel.textContent = val === 'lost' ? 'Where it was lost' : 'Where it was found';
+}
+optLost.addEventListener('click', () => setLostFound('lost'));
+optFound.addEventListener('click', () => setLostFound('found'));
+
+const photoDrop = document.getElementById('photoDrop');
+const photoInput = document.getElementById('photoInput');
+const photoPreview = document.getElementById('photoPreview');
+photoDrop.addEventListener('click', () => photoInput.click());
+photoInput.addEventListener('change', () => {
+  const file = photoInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingPhotoData = e.target.result;
+    photoPreview.src = pendingPhotoData;
+    photoPreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+function resetReportForm(){
+  setLostFound('lost');
+  pendingPhotoData = null;
+  photoPreview.style.display = 'none';
+  photoPreview.src = '';
+  document.getElementById('itemName').value = '';
+  document.getElementById('itemCategory').selectedIndex = 0;
+  document.getElementById('itemDesc').value = '';
+  document.getElementById('itemLocation').value = '';
+  document.getElementById('reporterName').value = '';
+  document.getElementById('reporterPhone').value = '';
+}
+
+document.getElementById('submitReport').addEventListener('click', () => {
+  const name = document.getElementById('itemName').value.trim();
+  const location = document.getElementById('itemLocation').value.trim();
+  const reporter = document.getElementById('reporterName').value.trim();
+  const phone = document.getElementById('reporterPhone').value.trim();
+
+  if(!name || !location || !reporter || !phone){
+    showToast('Fill in the item name, location, and your contact details.');
+    return;
+  }
+
+  const newItem = {
+    id: cryptoId(),
+    name,
+    category: document.getElementById('itemCategory').value,
+    status: pendingLostFound,
+    location,
+    desc: document.getElementById('itemDesc').value.trim() || 'No extra details added.',
+    reporter,
+    phone,
+    time: 'Just now',
+    photo: pendingPhotoData
+  };
+  items.unshift(newItem);
+  closeDrawers();
+  renderStats();
+  renderGrid();
+  showToast(pendingLostFound === 'lost' ? 'Item reported as lost. We\'ll show it to anyone searching.' : 'Nice work — item posted as found.');
+});
+
+/* ---- Detail drawer ---- */
+function openDetail(id){
+  const it = items.find(i => i.id === id);
+  if(!it) return;
+  const meta = statusMeta(it.status);
+
+  document.getElementById('detailTitle').textContent = it.name;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-photo" style="background:${meta.bg}">
+      ${it.photo ? `<img src="${it.photo}">` : iconFor(it.category, meta.ic)}
+    </div>
+    <span class="status-pill ${meta.cls}" style="position:static; display:inline-block; margin-bottom:14px;">${meta.label}</span>
+    <div class="detail-row"><span>Category</span><span>${escapeHtml(it.category)}</span></div>
+    <div class="detail-row"><span>Location</span><span>${escapeHtml(it.location)}</span></div>
+    <div class="detail-row"><span>Posted</span><span>${escapeHtml(it.time)}</span></div>
+    <div class="detail-row" style="border-bottom:none;"><span>Details</span><span style="text-align:right; max-width:220px;">${escapeHtml(it.desc)}</span></div>
+    <div class="contact-reveal" id="contactBox" style="display:none;">
+      <div class="cname">${escapeHtml(it.reporter)}</div>
+      <div class="cway">📞 ${escapeHtml(it.phone)}</div>
+    </div>
+  `;
+
+  const footer = document.getElementById('detailFooter');
+  footer.innerHTML = '';
+
+  if(it.status !== 'returned'){
+    const contactBtn = document.createElement('button');
+    contactBtn.className = 'btn btn-ghost';
+    contactBtn.style.flex = '1';
+    contactBtn.textContent = it.status === 'lost' ? 'Contact reporter' : 'Contact finder';
+    contactBtn.addEventListener('click', () => {
+      document.getElementById('contactBox').style.display = 'block';
+      contactBtn.textContent = 'Contact details shown below';
+      contactBtn.disabled = true;
+    });
+
+    const returnBtn = document.createElement('button');
+    returnBtn.className = 'btn btn-primary';
+    returnBtn.style.flex = '2';
+    returnBtn.textContent = 'Mark as returned';
+    returnBtn.addEventListener('click', () => {
+      it.status = 'returned';
+      closeDrawers();
+      renderStats();
+      renderGrid();
+      showToast('Marked as returned. Glad it made it back!');
+    });
+
+    footer.appendChild(contactBtn);
+    footer.appendChild(returnBtn);
+  } else {
+    const note = document.createElement('div');
+    note.style.cssText = 'text-align:center; width:100%; color:var(--muted); font-size:13px; padding:6px 0;';
+    note.textContent = 'This item has already been returned to its owner.';
+    footer.appendChild(note);
+  }
+
+  openDrawer(detailDrawer);
+}
+
+/* ---------------- Toast ---------------- */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ---------------- Init ---------------- */
+renderStats();
+renderGrid();
+</script>
+</body>
+</html>
