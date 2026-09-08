@@ -367,7 +367,7 @@ function openDetail(id){
 
   if(it.status !== 'returned'){
     const contactBtn = document.createElement('button');
-    contactBtn.className = 'btn btn-ghost';
+    contactBtn.className = 'btn btn-primary';
     contactBtn.style.flex = '1';
     contactBtn.textContent = it.status === 'lost' ? 'Contact reporter' : 'Contact finder';
     contactBtn.addEventListener('click', () => {
@@ -376,29 +376,7 @@ function openDetail(id){
       contactBtn.disabled = true;
     });
 
-    const returnBtn = document.createElement('button');
-    returnBtn.className = 'btn btn-primary';
-    returnBtn.style.flex = '2';
-    returnBtn.textContent = 'Mark as returned';
-    let confirming = false;
-    returnBtn.addEventListener('click', () => {
-      if(!confirming){
-        confirming = true;
-        returnBtn.textContent = 'Confirm — really returned?';
-        returnBtn.classList.add('btn-confirm');
-        setTimeout(() => { confirming = false; }, 4000);
-        return;
-      }
-      it.status = 'returned';
-      saveItems();
-      closeDrawers();
-      renderStats();
-      renderGrid();
-      showToast('Marked as returned. Glad it made it back!');
-    });
-
     footer.appendChild(contactBtn);
-    footer.appendChild(returnBtn);
   } else {
     const note = document.createElement('div');
     note.style.cssText = 'text-align:center; width:100%; color:var(--muted); font-size:13px; padding:6px 0;';
